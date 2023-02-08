@@ -62,7 +62,6 @@ int pirValue = digitalRead(PIR_PIN); // Legge il valore del sensore PIR
 
 if (dB>46){
   digitalWrite(7, HIGH);
-
   }
 else{ 
   digitalWrite(7, LOW);
