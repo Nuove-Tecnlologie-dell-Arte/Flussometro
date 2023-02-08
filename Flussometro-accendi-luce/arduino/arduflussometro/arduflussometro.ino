@@ -56,13 +56,12 @@ int pirValue = digitalRead(PIR_PIN); // Legge il valore del sensore PIR
   else {
     Serial.println("0"); // Invia un messaggio di nessun movimento rilevato alla serialeint
 
+
   }
 
 
 if (dB>46){
   digitalWrite(7, HIGH);
-    //Serial.println("OH YES"); // Invia un messaggio di nessun movimento rilevato alla seriale
-Serial.println("yes"); // Invia un messaggio di nessun movimento rilevato alla serialeint
 
   }
 else{ 
