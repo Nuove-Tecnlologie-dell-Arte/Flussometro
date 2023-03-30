@@ -10,7 +10,7 @@ alt = 1050
 larg= 1650
 background = pygame.image.load('background.png')
 screen = pygame.display.set_mode((larg,alt), pygame.FULLSCREEN,0, 32)#, pygame.FULLSCREEN,0, 32
-myFont = pygame.font.SysFont("/home/pi/Desktop/gianna/beba.ttf", 600)
+myFont = pygame.font.SysFont("beba.ttf", 600)
 pygame.mouse.set_visible(False)
 screen.blit(background, (0, 0))
 labelDisplay = myFont.render(str(contatore),1, giallo)
