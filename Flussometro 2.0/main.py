@@ -1,15 +1,5 @@
-import RPi.GPIO as GPIO
 import pygame
-import io
-import sys
-import os
-import random
 from Sensore import*
-import time
-#GPIO SETUP	
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO. setup (26, GPIO.IN)
 contatore = 0
 checkingperson = True
 #pygames Primitive
