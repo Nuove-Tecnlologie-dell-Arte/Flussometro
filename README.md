@@ -1,7 +1,5 @@
-# Flussometro
-All versions of Flussometro
-# Librerie
+## Librerie
 - RPi.GPIO
 - pygame
-# Collegamenti
+## Collegamenti
 ![](https://github.com/Nuove-Tecnlologie-dell-Arte/Flussometro/blob/main/Collegamenti.png?raw=true)
