@@ -1,6 +1,6 @@
 import cv2
 import pygame
-
+import time
 # Carica il classificatore pre-addestrato
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 faceslung=0
@@ -9,9 +9,10 @@ personedent=0
 pygame.init()
 magenta = (230,0,126)
 giallo= (255,237,0)
-alt = 1050
-larg= 1650
-background = pygame.image.load("background.png")
+alt = 1080
+larg= 1920
+background = pygame.image.load("background/1.png")
+background2 = pygame.image.load("background/2.png")
 screen = pygame.display.set_mode((larg,alt))#, pygame.FULLSCREEN,0, 32
 myFont = pygame.font.SysFont("beba.ttf", 600)
 pygame.mouse.set_visible(False)
@@ -19,6 +20,8 @@ screen.blit(background, (0, 0))
 labelDisplay = myFont.render(str(personedent),1, giallo)
 labelDisplayC= labelDisplay.get_rect(center=(larg // 2, alt // 2))
 screen.blit(labelDisplay, labelDisplayC)
+fade_surface = pygame.Surface((larg, alt))
+fade_surface.fill((0, 0, 0))
 pygame.display.update()
 
 # Accedi alla webcam
@@ -44,6 +47,13 @@ while running== True:
         personedent = personedent + 1
         screen.fill(magenta)
         screen.blit(background, (0, 0))
+        if personedent == 2:
+            for alpha in range(0, 300):
+                fade_surface.set_alpha(alpha)
+                screen.blit(background2, (0, 0))
+                screen.blit(fade_surface, (0, 0))
+                pygame.display.update()
+                time.sleep(0.01)
         labelDisplay = myFont.render(str(personedent),1, giallo)
         labelDisplayC= labelDisplay.get_rect(center=(larg // 2, alt // 2))
         screen.blit(labelDisplay, labelDisplayC)
