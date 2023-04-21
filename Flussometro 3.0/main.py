@@ -5,88 +5,128 @@ import random
 import threading
 from tkinter import *
 
+#funzione per inserire il punto nei numeri maggiori di 1000
+def format_number(number):
+    return '{:,}'.format(number).replace(',', '.')
+
+#funzione timer per lo sfondo
 def clockwork():
     while True:
-        global var_timer
-        if var_timer == False:
-            var_timer=True
         time.sleep(60)
+        global timer_bg
+        if timer_bg == False:
+            timer_bg=True
 
+#Dichiarazione Variabili
+num_fac=0
+p_cont=0
+num_bg = 1
+num_fac_old= 0
+num_ran=1
 
+g_font=600  #Cambia per cambiare la grandezza del font
+g_font_div= 1.2 #Cambia per cambiare il dividendo di ridimensionamento del font se sfora la larghezza dello schermo
 
-# Carica il classificatore pre-addestrato
-root = Tk()
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-faceslung=0
+scala_cam=1.1 #accuratezza con cui scala l'immagine della cam per essere analizzata (più è alto e più è pesante)
+sens= 5 #sensibilità nel riconoscere i volti
+
+timer_bg=False
 running=True
-personedent=0
-pygame.init()
+
+#Dichiarazione Colori
 magenta = (230,0,126)
 bianco= (255,255,255)
+
+#Inizializzzazione interfaccia
+root = Tk()
+pygame.init()
 alt = root.winfo_screenheight()
-print(alt)
 larg= root.winfo_screenwidth()
-print(larg)
-numbackgr = 1
-faceslungex= 0
-random_number=1
-background = pygame.image.load("background/"+str(numbackgr)+".png")
-background = pygame.transform.scale(background, (larg, alt))
+bg = pygame.image.load("background/"+str(num_bg)+".png")
+bg = pygame.transform.scale(bg, (larg, alt))
 screen = pygame.display.set_mode((larg,alt), pygame.FULLSCREEN)
-myFont = pygame.font.SysFont("beba.ttf", 600)
+beba_f = pygame.font.SysFont("beba.ttf",g_font)
 pygame.mouse.set_visible(False)
-screen.blit(background, (0, 0))
-labelDisplay = myFont.render(str(personedent),1, bianco)
-labelDisplayC= labelDisplay.get_rect(center=(larg // 2, alt // 2))
-screen.blit(labelDisplay, labelDisplayC)
+screen.blit(bg, (0, 0))
+p_cont_form = format_number(p_cont)
+txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
+screen.blit(txt_cont, txt_cont_form)
 fade_surface = pygame.Surface((larg, alt))
 fade_surface.fill((0, 0, 0))
 pygame.display.update()
 
+# Carica il classificatore pre-addestrato
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 # Accedi alla webcam
-cap = cv2.VideoCapture(0)
-var_timer=False
+cap = cv2.VideoCapture(0)#Cambia il valore per selezionare la cam
+
+#Inizializzazione Thread
 t = threading.Thread(target=clockwork, args=())
 t.start()
 
 while running== True:
-    
+
     # Leggi un frame dalla webcam
     ret, frame = cap.read()
+
     # Converti l'immagine in scala di grigi
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
     # Rileva le facce nell'immagine
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.01, minNeighbors=5)
-    faceslungex = faceslung #Variabile di controllo per vedere quante persone c'erano prima del nuovo loop
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=scala_cam, minNeighbors=sens)
+    num_fac_old = num_fac #Variabile di controllo per vedere quante persone c'erano prima del nuovo loop
+
     #Conta quante facce sono rilevate dalla cam
-    faceslung= len(faces)
-    num_sott= (faceslungex)-faceslung
+    num_fac= len(faces)
+
+
     #Incremento del contatore quando qualcuno esce dall'inquadratura
-    if (faceslung<faceslungex):
-        personedent = personedent + num_sott
+    if (num_fac<num_fac_old):
+        p_cont = p_cont + ((num_fac_old)-num_fac)
         screen.fill(magenta)
-        screen.blit(background, (0, 0))
+        screen.blit(bg, (0, 0))
 
-        if var_timer == True:
-            var_timer=False
-            random_number = random.randint(1, 5)
-            numbackgr= random_number
-            background = pygame.image.load("background/"+str(numbackgr)+".png")
-            background = pygame.transform.scale(background, (larg, alt))
+        #Cambio Sfondo ogni minuto
+        if timer_bg == True:
+            timer_bg=False
+            num_ran = random.randint(1, 5)
+            #Check per assicurare lo sfondo diverso
+            while num_bg==num_ran:
+                num_ran = random.randint(1, 5)
+            num_bg= num_ran
+            bg = pygame.image.load("background/"+str(num_bg)+".png")
+            bg = pygame.transform.scale(bg, (larg, alt))
 
+            #Fade dello sfondo
             for alpha in range(0, 37):
-                background.set_alpha((alpha*8)+4)
-                screen.blit(background, (0, 0))
-                labelDisplay = myFont.render(str(personedent),1, bianco)
-                labelDisplayC= labelDisplay.get_rect(center=(larg // 2, alt // 2))
-                screen.blit(labelDisplay, labelDisplayC)
+                bg.set_alpha((alpha*8)+4)
+                screen.blit(bg, (0, 0))
+                p_cont_form = format_number(p_cont)
+                txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+                txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
+                screen.blit(txt_cont, txt_cont_form)
                 pygame.display.update()
 
-        labelDisplay = myFont.render(str(personedent),1, bianco)
-        labelDisplayC= labelDisplay.get_rect(center=(larg // 2, alt // 2))
-        screen.blit(labelDisplay, labelDisplayC)
+        #Formattazione del contatore
+        p_cont_form = format_number(p_cont)
+        txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+        txt_cont_larg=txt_cont.get_width()
+
+        #Diminuzione della grandezza del font se la cifra è troppo larga
+        if larg<=txt_cont_larg:
+            g_font= int(g_font/g_font_div)
+            beba_f = pygame.font.SysFont("beba.ttf",g_font)
+            txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+
+        #Stampa del Contatore centrandolo allo schermo
+        txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
+        screen.blit(txt_cont, txt_cont_form)
         pygame.display.update()
 
+    #Premi ESC per chiudere il programma
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -94,4 +134,3 @@ while running== True:
             running= False
 
 pygame.quit()
-exit()
