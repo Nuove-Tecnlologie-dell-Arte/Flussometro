@@ -35,7 +35,7 @@ num_bg = 1
 num_fac_old= 0
 num_ran=1
 
-g_font=600  #Cambia per cambiare la grandezza del font
+g_font=400  #Cambia per cambiare la grandezza del font
 g_font_div= 1.2 #Cambia per cambiare il dividendo di ridimensionamento del font se sfora la larghezza dello schermo
 
 scala_cam=1.1 #accuratezza con cui scala l'immagine della cam per essere analizzata (più è alto e più è pesante)
@@ -116,6 +116,7 @@ while running== True:
             screen.fill(bg_c)
             bg = pygame.image.load("background/"+str(num_bg)+".png")
             bg = pygame.transform.scale(bg, (larg, alt))
+            screen.blit(bg, (0, 0))
 
         #Formattazione del contatore
         p_cont_form = format_number(p_cont)
@@ -132,6 +133,8 @@ while running== True:
         txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
         screen.blit(txt_cont, txt_cont_form)
         pygame.display.update()
+
+    else: pygame.display.update()
 
     #Premi ESC per chiudere il programma
     for event in pygame.event.get():
