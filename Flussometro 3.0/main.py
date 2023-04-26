@@ -5,6 +5,17 @@ import random
 import threading
 from tkinter import *
 
+def r_color():
+    magenta = (231,31,116)
+    verde = (85, 209,75)
+    azzurro = (0,159,227)
+    viola=(49,39,131)
+    rosso= (220,8,18)
+    arancione = (239,123,0)
+    colori = [magenta, verde, azzurro, viola, rosso, arancione]
+    colore_casuale = random.choice(colori)
+    print(colore_casuale)
+    return colore_casuale
 #funzione per inserire il punto nei numeri maggiori di 1000
 def format_number(number):
     return '{:,}'.format(number).replace(',', '.')
@@ -12,7 +23,7 @@ def format_number(number):
 #funzione timer per lo sfondo
 def clockwork():
     while True:
-        time.sleep(60)
+        time.sleep(10)
         global timer_bg
         if timer_bg == False:
             timer_bg=True
@@ -47,6 +58,8 @@ bg = pygame.transform.scale(bg, (larg, alt))
 screen = pygame.display.set_mode((larg,alt), pygame.FULLSCREEN)
 beba_f = pygame.font.SysFont("beba.ttf",g_font)
 pygame.mouse.set_visible(False)
+bg_c=r_color()
+screen.fill(bg_c)
 screen.blit(bg, (0, 0))
 p_cont_form = format_number(p_cont)
 txt_cont = beba_f.render(str(p_cont_form),1, bianco)
@@ -68,7 +81,6 @@ t = threading.Thread(target=clockwork, args=())
 t.start()
 
 while running== True:
-
     # Leggi un frame dalla webcam
     ret, frame = cap.read()
 
@@ -86,7 +98,7 @@ while running== True:
     #Incremento del contatore quando qualcuno esce dall'inquadratura
     if (num_fac<num_fac_old):
         p_cont = p_cont + ((num_fac_old)-num_fac)
-        screen.fill(magenta)
+        screen.fill(bg_c)
         screen.blit(bg, (0, 0))
 
         #Cambio Sfondo ogni minuto
@@ -97,18 +109,13 @@ while running== True:
             while num_bg==num_ran:
                 num_ran = random.randint(1, 5)
             num_bg= num_ran
+            bg_c_n= r_color()
+            while bg_c == bg_c_n:
+                bg_c_n= r_color()
+            bg_c=bg_c_n
+            screen.fill(bg_c)
             bg = pygame.image.load("background/"+str(num_bg)+".png")
             bg = pygame.transform.scale(bg, (larg, alt))
-
-            #Fade dello sfondo
-            for alpha in range(0, 37):
-                bg.set_alpha((alpha*8)+4)
-                screen.blit(bg, (0, 0))
-                p_cont_form = format_number(p_cont)
-                txt_cont = beba_f.render(str(p_cont_form),1, bianco)
-                txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
-                screen.blit(txt_cont, txt_cont_form)
-                pygame.display.update()
 
         #Formattazione del contatore
         p_cont_form = format_number(p_cont)
