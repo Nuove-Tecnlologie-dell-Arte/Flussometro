@@ -54,8 +54,8 @@ bianco= (255,255,255)
 #Ricolocazione dei file
 folder_path = 'background/'
 files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
-'''files.sort()
-file_c_r = 1
+files.sort()
+'''file_c_r = 1
 for file in files:
     if not file.startswith(str(file_c_r) + '.'):
         new_name = str(file_c_r) + '.png'
@@ -69,7 +69,7 @@ n_files=len(files)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 # Accedi alla webcam
-cap = cv2.VideoCapture(0)#Cambia il valore per selezionare la cam
+cap = cv2.VideoCapture(1)#Cambia il valore per selezionare la cam
 
 #Inizializzzazione interfaccia
 root = Tk()
@@ -109,31 +109,11 @@ while running== True:
     num_fac_old = num_fac #Variabile di controllo per vedere quante persone c'erano prima del nuovo loop
     #Conta quante facce sono rilevate dalla cam
     num_fac= len(faces)
-
     #Incremento del contatore quando qualcuno esce dall'inquadratura
     if (num_fac<num_fac_old):
         p_cont = p_cont + ((num_fac_old)-num_fac)
         screen.fill(bg_c)
         screen.blit(bg, (0, 0))
-
-        #Cambio Sfondo ogni minuto
-        if timer_bg == True:
-            timer_bg=False
-            screen_old=screen
-            num_ran = random.randint(1, n_files)
-            #Check per assicurare lo sfondo diverso
-            while num_bg==num_ran:
-                num_ran = random.randint(1, n_files)
-            num_bg= num_ran
-            bg_c_n= r_color()
-            while bg_c == bg_c_n:
-                bg_c_n= r_color()
-            bg_c=bg_c_n
-            screen.fill(bg_c)
-            bg = pygame.image.load("background/"+str(num_bg)+".png")
-            bg = pygame.transform.scale(bg, (larg, alt))
-            screen.blit(bg, (0, 0))
-
         #Salvo il valore
         with open('valori.txt', 'w') as f:    
                 f.write(str(p_cont))
@@ -158,7 +138,30 @@ while running== True:
         screen.blit(txt_cont, txt_cont_form)
         pygame.display.update()
 
+    #Cambio Sfondo ogni minuto
+    if timer_bg == True:
+        timer_bg=False
+        num_ran = random.randint(1, n_files)
+        #Check per assicurare lo sfondo diverso
+        while num_bg==num_ran:
+            num_ran = random.randint(1, n_files)
+        num_bg= num_ran
+        bg_c_n= r_color()
+        while bg_c == bg_c_n:
+            bg_c_n= r_color()
+        bg_c=bg_c_n
+        screen.fill(bg_c)
+        bg = pygame.image.load("background/"+str(num_bg)+".png")
+        bg = pygame.transform.scale(bg, (larg, alt))
+        screen.blit(bg, (0, 0))
+        ov = pygame.image.load("overlay/over.png")
+        ov = pygame.transform.scale(ov, (larg, alt))
+        screen.blit(ov, (0, 0))
+        txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
+        screen.blit(txt_cont, txt_cont_form)
+        pygame.display.update()
 
+        
     #Premi ESC per chiudere il programma
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
