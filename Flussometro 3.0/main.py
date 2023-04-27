@@ -5,6 +5,7 @@ import random
 import threading
 from tkinter import *
 import os
+
 def r_color():
     magenta = (231,31,116)
     verde = (85, 209,75)
@@ -15,6 +16,7 @@ def r_color():
     colori = [magenta, verde, azzurro, viola, rosso, arancione]
     colore_casuale = random.choice(colori)
     return colore_casuale
+
 #funzione per inserire il punto nei numeri maggiori di 1000
 def format_number(number):
     return '{:,}'.format(number).replace(',', '.')
@@ -43,20 +45,23 @@ sens= 5 #sensibilità nel riconoscere i volti
 timer_bg=False
 running=True
 
+#Recupero Contatore
+with open('valori.txt', 'r') as f: 
+    p_cont = int(f.read().strip())
 #Dichiarazione Colori
 bianco= (255,255,255)
 
 #Ricolocazione dei file
 folder_path = 'background/'
 files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
-files.sort()
-
+'''files.sort()
 file_c_r = 1
 for file in files:
     if not file.startswith(str(file_c_r) + '.'):
         new_name = str(file_c_r) + '.png'
         os.rename(os.path.join(folder_path, file), os.path.join(folder_path, new_name))
-    file_c_r += 1
+    file_c_r += 1'''
+
 n_files=len(files)
 
 # Carica il classificatore pre-addestrato
@@ -79,6 +84,9 @@ pygame.mouse.set_visible(False)
 bg_c=r_color()
 screen.fill(bg_c)
 screen.blit(bg, (0, 0))
+ov = pygame.image.load("overlay/over.png")
+ov = pygame.transform.scale(ov, (larg, alt))
+screen.blit(ov, (0, 0))
 p_cont_form = format_number(p_cont)
 txt_cont = beba_f.render(str(p_cont_form),1, bianco)
 txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
@@ -126,6 +134,9 @@ while running== True:
             bg = pygame.transform.scale(bg, (larg, alt))
             screen.blit(bg, (0, 0))
 
+        #Salvo il valore
+        with open('valori.txt', 'w') as f:    
+                f.write(str(p_cont))
         #Formattazione del contatore
         p_cont_form = format_number(p_cont)
         txt_cont = beba_f.render(str(p_cont_form),1, bianco)
@@ -137,6 +148,11 @@ while running== True:
             beba_f = pygame.font.SysFont("beba.ttf",g_font)
             txt_cont = beba_f.render(str(p_cont_form),1, bianco)
 
+
+        #imposta overlay
+        ov = pygame.image.load("overlay/over.png")
+        ov = pygame.transform.scale(ov, (larg, alt))
+        screen.blit(ov, (0, 0))
         #Stampa del Contatore centrandolo allo schermo
         txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
         screen.blit(txt_cont, txt_cont_form)
