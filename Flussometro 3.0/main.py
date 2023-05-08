@@ -6,6 +6,8 @@ import threading
 from tkinter import *
 import os
 
+
+
 def r_color():
     magenta = (231,31,116)
     verde = (85, 209,75)
@@ -24,7 +26,7 @@ def format_number(number):
 #funzione timer per lo sfondo
 def clockwork():
     while True:
-        time.sleep(10)
+        time.sleep(20)
         global timer_bg
         if timer_bg == False:
             timer_bg=True
@@ -45,15 +47,23 @@ sens= 5 #sensibilità nel riconoscere i volti
 timer_bg=False
 running=True
 
+# ottiene la posizione della directory corrente
+dir_path = os.getcwd()
+bg_path=dir_path + "/background/"
+font_path= dir_path + "/beba.ttf"
+ov_path= dir_path + "/overlay/over.png"
+val_path= dir_path+"/valori.txt"
+print(f"La directory corrente è: {ov_path}")
+
+
 #Recupero Contatore
-with open('valori.txt', 'r') as f: 
+with open(val_path, 'r') as f: 
     p_cont = int(f.read().strip())
 #Dichiarazione Colori
 bianco= (255,255,255)
 
 #Ricolocazione dei file
-folder_path = 'background/'
-files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
+files = [f for f in os.listdir(bg_path) if f.endswith('.png')]
 files.sort()
 '''file_c_r = 1
 for file in files:
@@ -69,22 +79,22 @@ n_files=len(files)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 # Accedi alla webcam
-cap = cv2.VideoCapture(1)#Cambia il valore per selezionare la cam
+cap = cv2.VideoCapture(0)#Cambia il valore per selezionare la cam
 
 #Inizializzzazione interfaccia
 root = Tk()
 pygame.init()
 alt = root.winfo_screenheight()
 larg= root.winfo_screenwidth()
-bg = pygame.image.load("background/"+str(num_bg)+".png")
+bg = pygame.image.load(bg_path+str(num_bg)+".png")
 bg = pygame.transform.scale(bg, (larg, alt))
 screen = pygame.display.set_mode((larg,alt), pygame.FULLSCREEN)
-beba_f = pygame.font.SysFont("beba.ttf",g_font)
+beba_f = pygame.font.SysFont(font_path,g_font)
 pygame.mouse.set_visible(False)
 bg_c=r_color()
 screen.fill(bg_c)
 screen.blit(bg, (0, 0))
-ov = pygame.image.load("overlay/over.png")
+ov = pygame.image.load(ov_path)
 ov = pygame.transform.scale(ov, (larg, alt))
 screen.blit(ov, (0, 0))
 p_cont_form = format_number(p_cont)
@@ -97,7 +107,6 @@ pygame.display.update()
 t = threading.Thread(target=clockwork)
 t.daemon = True
 t.start()
-
 #Via al Main Loop
 while running== True:
     # Leggi un frame dalla webcam
@@ -115,7 +124,7 @@ while running== True:
         screen.fill(bg_c)
         screen.blit(bg, (0, 0))
         #Salvo il valore
-        with open('valori.txt', 'w') as f:    
+        with open(val_path, 'w') as f:    
                 f.write(str(p_cont))
         #Formattazione del contatore
         p_cont_form = format_number(p_cont)
@@ -125,12 +134,12 @@ while running== True:
         #Diminuzione della grandezza del font se la cifra è troppo larga
         if larg<=txt_cont_larg:
             g_font= int(g_font/g_font_div)
-            beba_f = pygame.font.SysFont("beba.ttf",g_font)
+            beba_f = pygame.font.SysFont(font_path,g_font)
             txt_cont = beba_f.render(str(p_cont_form),1, bianco)
 
 
         #imposta overlay
-        ov = pygame.image.load("overlay/over.png")
+        ov = pygame.image.load(ov_path)
         ov = pygame.transform.scale(ov, (larg, alt))
         screen.blit(ov, (0, 0))
         #Stampa del Contatore centrandolo allo schermo
@@ -151,10 +160,10 @@ while running== True:
             bg_c_n= r_color()
         bg_c=bg_c_n
         screen.fill(bg_c)
-        bg = pygame.image.load("background/"+str(num_bg)+".png")
+        bg = pygame.image.load(bg_path+str(num_bg)+".png")
         bg = pygame.transform.scale(bg, (larg, alt))
         screen.blit(bg, (0, 0))
-        ov = pygame.image.load("overlay/over.png")
+        ov = pygame.image.load(ov_path)
         ov = pygame.transform.scale(ov, (larg, alt))
         screen.blit(ov, (0, 0))
         txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
