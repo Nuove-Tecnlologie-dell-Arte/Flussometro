@@ -1,33 +1,40 @@
-if timer_bg == True:
-    timer_bg=False
-    num_ran = random.randint(1, n_files)
-    #Check per assicurare lo sfondo diverso
-    while num_bg==num_ran:
-        num_ran = random.randint(1, n_files)
-    num_bg= num_ran
-    bg_c_n= r_color()
-    while bg_c == bg_c_n:
-        bg_c_n= r_color()
-    bg_c=bg_c_n
-    
-    # Crea la nuova superficie del background
-    new_bg = pygame.Surface((larg, alt))
-    new_bg.fill(bg_c)
-    new_bg_img = pygame.image.load(bg_path+str(num_bg)+".png")
-    new_bg_img = pygame.transform.scale(new_bg_img, (larg, alt))
-    new_bg.blit(new_bg_img, (0, 0))
-    # Applica l'effetto di fade alla superficie del background
-    for alpha in range(0, 255, 10):
-        new_bg.set_alpha(alpha)
-        screen.blit(new_bg, (0, 0))
-        pygame.display.update()
-        pygame.time.delay(50)
-    
-    # Aggiorna lo schermo con la nuova immagine del background e il testo
-    screen.blit(new_bg, (0, 0))
-    ov = pygame.image.load(ov_path)
-    ov = pygame.transform.scale(ov, (larg, alt))
-    screen.blit(ov, (0, 0))
-    txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
-    screen.blit(txt_cont, txt_cont_form)
-    pygame.display.update()
+import os
+import shutil
+
+def rename_bot():
+    # Imposta i percorsi delle cartelle
+    cartella_origine = 'background'
+    cartella_destinazione = 'background_new'
+
+    # Crea la cartella di destinazione se non esiste già
+    if not os.path.exists(cartella_destinazione):
+        os.makedirs(cartella_destinazione)
+
+    # Copia i file dalla cartella di origine alla cartella di destinazione
+    for nome_file in os.listdir(cartella_origine):
+        percorso_origine = os.path.join(cartella_origine, nome_file)
+        percorso_destinazione = os.path.join(cartella_destinazione, nome_file)
+        shutil.copy(percorso_origine, percorso_destinazione)
+
+    # Elimina i file nella cartella di origine
+    for nome_file in os.listdir(cartella_origine):
+        percorso_file = os.path.join(cartella_origine, nome_file)
+        os.remove(percorso_file)
+
+    print("Operazione completata con successo!")
+
+    # Copia i file PNG dalla cartella "background_new" alla cartella "background" numerandoli
+    file_png = [f for f in os.listdir(cartella_destinazione) if f.endswith('.png')]
+    totale_file_png = len(file_png)
+
+    for indice, nome_file in enumerate(file_png, start=1):
+        percorso_origine = os.path.join(cartella_destinazione, nome_file)
+        percorso_destinazione = os.path.join(cartella_origine, f"{indice}.png")
+        shutil.copy(percorso_origine, percorso_destinazione)
+
+    # Elimina i file nella cartella "background_new"
+    for nome_file in os.listdir(cartella_destinazione):
+        percorso_file = os.path.join(cartella_destinazione, nome_file)
+        os.remove(percorso_file)
+
+    print("Operazione completata con successo!")
