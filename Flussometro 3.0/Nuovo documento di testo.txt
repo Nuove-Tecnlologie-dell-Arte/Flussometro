@@ -1,0 +1,33 @@
+if timer_bg == True:
+    timer_bg=False
+    num_ran = random.randint(1, n_files)
+    #Check per assicurare lo sfondo diverso
+    while num_bg==num_ran:
+        num_ran = random.randint(1, n_files)
+    num_bg= num_ran
+    bg_c_n= r_color()
+    while bg_c == bg_c_n:
+        bg_c_n= r_color()
+    bg_c=bg_c_n
+    
+    # Crea la nuova superficie del background
+    new_bg = pygame.Surface((larg, alt))
+    new_bg.fill(bg_c)
+    new_bg_img = pygame.image.load(bg_path+str(num_bg)+".png")
+    new_bg_img = pygame.transform.scale(new_bg_img, (larg, alt))
+    new_bg.blit(new_bg_img, (0, 0))
+    # Applica l'effetto di fade alla superficie del background
+    for alpha in range(0, 255, 10):
+        new_bg.set_alpha(alpha)
+        screen.blit(new_bg, (0, 0))
+        pygame.display.update()
+        pygame.time.delay(50)
+    
+    # Aggiorna lo schermo con la nuova immagine del background e il testo
+    screen.blit(new_bg, (0, 0))
+    ov = pygame.image.load(ov_path)
+    ov = pygame.transform.scale(ov, (larg, alt))
+    screen.blit(ov, (0, 0))
+    txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
+    screen.blit(txt_cont, txt_cont_form)
+    pygame.display.update()
