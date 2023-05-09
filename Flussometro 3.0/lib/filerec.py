@@ -1,10 +1,13 @@
+from tkinter import *
 import os
 import shutil
 
+
 def rename_bot():
     # Imposta i percorsi delle cartelle
-    cartella_origine = 'background'
-    cartella_destinazione = 'background_new'
+    dir_path = os.getcwd()
+    cartella_origine = dir_path + '/background'
+    cartella_destinazione = dir_path + '/background_new'
 
     # Crea la cartella di destinazione se non esiste già
     if not os.path.exists(cartella_destinazione):
@@ -21,11 +24,8 @@ def rename_bot():
         percorso_file = os.path.join(cartella_origine, nome_file)
         os.remove(percorso_file)
 
-    print("Operazione completata con successo!")
-
     # Copia i file PNG dalla cartella "background_new" alla cartella "background" numerandoli
     file_png = [f for f in os.listdir(cartella_destinazione) if f.endswith('.png')]
-    totale_file_png = len(file_png)
 
     for indice, nome_file in enumerate(file_png, start=1):
         percorso_origine = os.path.join(cartella_destinazione, nome_file)
@@ -36,5 +36,4 @@ def rename_bot():
     for nome_file in os.listdir(cartella_destinazione):
         percorso_file = os.path.join(cartella_destinazione, nome_file)
         os.remove(percorso_file)
-
-    print("Operazione completata con successo!")
+    shutil.rmtree(cartella_destinazione)

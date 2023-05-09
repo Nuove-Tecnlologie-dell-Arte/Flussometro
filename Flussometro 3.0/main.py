@@ -5,9 +5,7 @@ import random
 import threading
 from tkinter import *
 import os
-
-
-
+import lib.filerec as filerec
 def r_color():
     magenta = (231,31,116)
     verde = (85, 209,75)
@@ -26,12 +24,14 @@ def format_number(number):
 #funzione timer per lo sfondo
 def clockwork():
     while True:
-        time.sleep(20)
+        global bg_timer
+        time.sleep(bg_timer)
         global timer_bg
         if timer_bg == False:
             timer_bg=True
 
 #Dichiarazione Variabili
+bg_timer=60 #Cambia per modificare il tempo di attesa tra un Background ed un altro
 num_fac=0
 p_cont=0
 num_bg = 1
@@ -41,9 +41,9 @@ num_ran=1
 g_font=400  #Cambia per cambiare la grandezza del font
 g_font_div= 1.2 #Cambia per cambiare il dividendo di ridimensionamento del font se sfora la larghezza dello schermo
 
-scala_cam=1.1 #accuratezza con cui scala l'immagine della cam per essere analizzata (più è alto e più è pesante)
-sens= 5 #sensibilità nel riconoscere i volti
-
+scala_cam=1.5 #accuratezza con cui scala l'immagine della cam per essere analizzata (più è alto e più è pesante)
+sens= 3 #sensibilità nel riconoscere i volti
+debug_cv=False
 timer_bg=False
 running=True
 
@@ -53,25 +53,18 @@ bg_path=dir_path + "/background/"
 font_path= dir_path + "/beba.ttf"
 ov_path= dir_path + "/overlay/over.png"
 val_path= dir_path+"/valori.txt"
-print(f"La directory corrente è: {ov_path}")
-
 
 #Recupero Contatore
 with open(val_path, 'r') as f: 
     p_cont = int(f.read().strip())
+f.close()
 #Dichiarazione Colori
 bianco= (255,255,255)
 
 #Ricolocazione dei file
+filerec.rename_bot()
 files = [f for f in os.listdir(bg_path) if f.endswith('.png')]
 files.sort()
-'''file_c_r = 1
-for file in files:
-    if not file.startswith(str(file_c_r) + '.'):
-        new_name = str(file_c_r) + '.png'
-        os.rename(os.path.join(folder_path, file), os.path.join(folder_path, new_name))
-    file_c_r += 1'''
-
 n_files=len(files)
 
 # Carica il classificatore pre-addestrato
@@ -107,6 +100,8 @@ pygame.display.update()
 t = threading.Thread(target=clockwork)
 t.daemon = True
 t.start()
+
+
 #Via al Main Loop
 while running== True:
     # Leggi un frame dalla webcam
@@ -114,7 +109,7 @@ while running== True:
     # Converti l'immagine in scala di grigi
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Rileva le facce nell'immagine
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=scala_cam, minNeighbors=sens)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=scala_cam, minNeighbors=sens, minSize=(30,30))
     num_fac_old = num_fac #Variabile di controllo per vedere quante persone c'erano prima del nuovo loop
     #Conta quante facce sono rilevate dalla cam
     num_fac= len(faces)
@@ -126,6 +121,7 @@ while running== True:
         #Salvo il valore
         with open(val_path, 'w') as f:    
                 f.write(str(p_cont))
+        f.close()
         #Formattazione del contatore
         p_cont_form = format_number(p_cont)
         txt_cont = beba_f.render(str(p_cont_form),1, bianco)
@@ -159,10 +155,27 @@ while running== True:
         while bg_c == bg_c_n:
             bg_c_n= r_color()
         bg_c=bg_c_n
-        screen.fill(bg_c)
-        bg = pygame.image.load(bg_path+str(num_bg)+".png")
-        bg = pygame.transform.scale(bg, (larg, alt))
-        screen.blit(bg, (0, 0))
+        
+        # Crea la nuova superficie del background
+        new_bg = pygame.Surface((larg, alt))
+        new_bg.fill(bg_c)
+        new_bg_img = pygame.image.load(bg_path+str(num_bg)+".png")
+        new_bg_img = pygame.transform.scale(new_bg_img, (larg, alt))
+        new_bg.blit(new_bg_img, (0, 0))
+        # Applica l'effetto di fade alla superficie del background
+        for alpha in range(0, 255, 10):
+            new_bg.set_alpha(alpha)
+            screen.blit(new_bg, (0, 0))        
+            ov = pygame.image.load(ov_path)
+            ov = pygame.transform.scale(ov, (larg, alt))
+            screen.blit(ov, (0, 0))
+            txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
+            screen.blit(txt_cont, txt_cont_form)
+            pygame.display.update()
+        
+        # Aggiorna lo schermo con la nuova immagine del background e il testo
+        screen.blit(new_bg, (0, 0))
+        bg=new_bg
         ov = pygame.image.load(ov_path)
         ov = pygame.transform.scale(ov, (larg, alt))
         screen.blit(ov, (0, 0))
@@ -170,12 +183,15 @@ while running== True:
         screen.blit(txt_cont, txt_cont_form)
         pygame.display.update()
 
-        
+
     #Premi ESC per chiudere il programma
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             running= False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_0:
+            p_cont=0
 
 pygame.quit()
+
