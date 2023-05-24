@@ -6,6 +6,7 @@ import threading
 from tkinter import *
 import os
 import lib.filerec as filerec
+from fer import FER
 def r_color():
     magenta = (231,31,116)
     verde = (85, 209,75)
@@ -37,6 +38,7 @@ p_cont=0
 num_bg = 1
 num_fac_old= 0
 num_ran=1
+count__bg_ch = 0
 
 g_font=400  #Cambia per cambiare la grandezza del font
 g_font_div= 1.2 #Cambia per cambiare il dividendo di ridimensionamento del font se sfora la larghezza dello schermo
@@ -45,13 +47,13 @@ scala_cam=1.5 #accuratezza con cui scala l'immagine della cam per essere analizz
 sens= 3 #sensibilità nel riconoscere i volti
 debug_cv=False
 timer_bg=False
+cambio_img=False
 running=True
 
 # ottiene la posizione della directory corrente
 dir_path = os.getcwd()
 bg_path=dir_path + "/background/"
 font_path= dir_path + "/beba.ttf"
-ov_path= dir_path + "/overlay/over.png"
 val_path= dir_path+"/valori.txt"
 
 #Recupero Contatore
@@ -72,7 +74,8 @@ n_files=len(files)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 # Accedi alla webcam
-cap = cv2.VideoCapture(0)#Cambia il valore per selezionare la cam
+face_rec_mod = FER()
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)#Cambia il valore per selezionare la cam
 
 #Inizializzzazione interfaccia
 root = Tk()
@@ -87,9 +90,6 @@ pygame.mouse.set_visible(False)
 bg_c=r_color()
 screen.fill(bg_c)
 screen.blit(bg, (0, 0))
-ov = pygame.image.load(ov_path)
-ov = pygame.transform.scale(ov, (larg, alt))
-screen.blit(ov, (0, 0))
 p_cont_form = format_number(p_cont)
 txt_cont = beba_f.render(str(p_cont_form),1, bianco)
 txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
@@ -107,15 +107,17 @@ while running== True:
     # Leggi un frame dalla webcam
     ret, frame = cap.read()
     # Converti l'immagine in scala di grigi
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Rileva le facce nell'immagine
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=scala_cam, minNeighbors=sens, minSize=(30,30))
+    #faces = face_cascade.detectMultiScale(gray, scaleFactor=scala_cam, minNeighbors=sens, minSize=(30,30))
+    faces = face_rec_mod.detect_emotions(frame)
     num_fac_old = num_fac #Variabile di controllo per vedere quante persone c'erano prima del nuovo loop
     #Conta quante facce sono rilevate dalla cam
     num_fac= len(faces)
     #Incremento del contatore quando qualcuno esce dall'inquadratura
     if (num_fac<num_fac_old):
         p_cont = p_cont + ((num_fac_old)-num_fac)
+        cambio_img=True
         screen.fill(bg_c)
         screen.blit(bg, (0, 0))
         #Salvo il valore
@@ -134,27 +136,26 @@ while running== True:
             txt_cont = beba_f.render(str(p_cont_form),1, bianco)
 
 
-        #imposta overlay
-        ov = pygame.image.load(ov_path)
-        ov = pygame.transform.scale(ov, (larg, alt))
-        screen.blit(ov, (0, 0))
         #Stampa del Contatore centrandolo allo schermo
         txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
         screen.blit(txt_cont, txt_cont_form)
         pygame.display.update()
 
     #Cambio Sfondo ogni minuto
-    if timer_bg == True:
-        timer_bg=False
+    if cambio_img == True: #timer_bg
+        cambio_img=False
+        count__bg_ch +=1
         num_ran = random.randint(1, n_files)
         #Check per assicurare lo sfondo diverso
         while num_bg==num_ran:
             num_ran = random.randint(1, n_files)
         num_bg= num_ran
-        bg_c_n= r_color()
-        while bg_c == bg_c_n:
+        if count__bg_ch == 10:
             bg_c_n= r_color()
-        bg_c=bg_c_n
+            while bg_c == bg_c_n:
+                bg_c_n= r_color()
+            bg_c=bg_c_n
+            count__bg_ch=0
         
         # Crea la nuova superficie del background
         new_bg = pygame.Surface((larg, alt))
@@ -162,23 +163,9 @@ while running== True:
         new_bg_img = pygame.image.load(bg_path+str(num_bg)+".png")
         new_bg_img = pygame.transform.scale(new_bg_img, (larg, alt))
         new_bg.blit(new_bg_img, (0, 0))
-        # Applica l'effetto di fade alla superficie del background
-        for alpha in range(0, 255, 10):
-            new_bg.set_alpha(alpha)
-            screen.blit(new_bg, (0, 0))        
-            ov = pygame.image.load(ov_path)
-            ov = pygame.transform.scale(ov, (larg, alt))
-            screen.blit(ov, (0, 0))
-            txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
-            screen.blit(txt_cont, txt_cont_form)
-            pygame.display.update()
-        
         # Aggiorna lo schermo con la nuova immagine del background e il testo
         screen.blit(new_bg, (0, 0))
         bg=new_bg
-        ov = pygame.image.load(ov_path)
-        ov = pygame.transform.scale(ov, (larg, alt))
-        screen.blit(ov, (0, 0))
         txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
         screen.blit(txt_cont, txt_cont_form)
         pygame.display.update()
