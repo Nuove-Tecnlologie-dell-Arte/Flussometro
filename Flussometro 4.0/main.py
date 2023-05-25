@@ -7,16 +7,26 @@ from tkinter import *
 import os
 import lib.filerec as filerec
 from fer import FER
+import pygame.font
+
 def r_color():
-    magenta = (231,31,116)
-    verde = (85, 209,75)
-    azzurro = (0,159,227)
-    viola=(49,39,131)
+    giallo = (254,235,39)
+    ocra = (250,201,2)
+    fucsia = (230,34,77)
+    verde = (146,192,34)
+    azzurro = (5,134,200)
+    celeste = (64,188,209)
+    violetto=(177,36,124)
+    viola = (99,80,156)
     rosso= (220,8,18)
-    arancione = (239,123,0)
-    colori = [magenta, verde, azzurro, viola, rosso, arancione]
+    rosso_scuro =(206,20,23)
+    turchese = (4,168,169)
+    arancione = (242,138,37)
+    magenta = (230,0,126)
+    colori = [magenta, rosso_scuro, fucsia, turchese, viola, celeste, verde, azzurro, violetto, rosso, arancione, giallo, ocra]
     colore_casuale = random.choice(colori)
     return colore_casuale
+
 
 #funzione per inserire il punto nei numeri maggiori di 1000
 def format_number(number):
@@ -40,7 +50,13 @@ num_fac_old= 0
 num_ran=1
 count__bg_ch = 0
 
-g_font=400  #Cambia per cambiare la grandezza del font
+# ottiene la posizione della directory corrente
+dir_path = os.getcwd()
+bg_path=dir_path + "/background/"
+font_path= dir_path + "/lemonmilk.otf"
+val_path= dir_path+"/valori.txt"
+
+g_font=300  #Cambia per cambiare la grandezza del font
 g_font_div= 1.2 #Cambia per cambiare il dividendo di ridimensionamento del font se sfora la larghezza dello schermo
 
 scala_cam=1.5 #accuratezza con cui scala l'immagine della cam per essere analizzata (più è alto e più è pesante)
@@ -49,12 +65,6 @@ debug_cv=False
 timer_bg=False
 cambio_img=False
 running=True
-
-# ottiene la posizione della directory corrente
-dir_path = os.getcwd()
-bg_path=dir_path + "/background/"
-font_path= dir_path + "/beba.ttf"
-val_path= dir_path+"/valori.txt"
 
 #Recupero Contatore
 with open(val_path, 'r') as f: 
@@ -80,18 +90,19 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)#Cambia il valore per selezionare la cam
 #Inizializzzazione interfaccia
 root = Tk()
 pygame.init()
+lemon_milk_f = pygame.font.Font(font_path, g_font)
 alt = root.winfo_screenheight()
 larg= root.winfo_screenwidth()
 bg = pygame.image.load(bg_path+str(num_bg)+".png")
 bg = pygame.transform.scale(bg, (larg, alt))
 screen = pygame.display.set_mode((larg,alt), pygame.FULLSCREEN)
-beba_f = pygame.font.SysFont(font_path,g_font)
+lemon_milk_f = pygame.font.Font(font_path,g_font)
 pygame.mouse.set_visible(False)
 bg_c=r_color()
 screen.fill(bg_c)
 screen.blit(bg, (0, 0))
-p_cont_form = format_number(p_cont)
-txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+p_cont_form = format_number(p_cont) + "Ə"
+txt_cont = lemon_milk_f.render(str(p_cont_form),1, bianco)
 txt_cont_form= txt_cont.get_rect(center=(larg // 2, alt // 2))
 screen.blit(txt_cont, txt_cont_form)
 pygame.display.update()
@@ -125,15 +136,15 @@ while running== True:
                 f.write(str(p_cont))
         f.close()
         #Formattazione del contatore
-        p_cont_form = format_number(p_cont)
-        txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+        p_cont_form = format_number(p_cont) + "Ə"
+        txt_cont = lemon_milk_f.render(str(p_cont_form),1, bianco)
         txt_cont_larg=txt_cont.get_width()
 
         #Diminuzione della grandezza del font se la cifra è troppo larga
         if larg<=txt_cont_larg:
             g_font= int(g_font/g_font_div)
-            beba_f = pygame.font.SysFont(font_path,g_font)
-            txt_cont = beba_f.render(str(p_cont_form),1, bianco)
+            lemon_milk_f = pygame.font.Font(font_path,g_font)
+            txt_cont = lemon_milk_f.render(str(p_cont_form),1, bianco)
 
 
         #Stampa del Contatore centrandolo allo schermo
