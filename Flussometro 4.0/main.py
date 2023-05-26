@@ -10,7 +10,6 @@ from fer import FER
 import pygame.font
 
 def r_color():
-    giallo = (254,235,39)
     ocra = (250,201,2)
     fucsia = (230,34,77)
     verde = (146,192,34)
@@ -23,7 +22,7 @@ def r_color():
     turchese = (4,168,169)
     arancione = (242,138,37)
     magenta = (230,0,126)
-    colori = [magenta, rosso_scuro, fucsia, turchese, viola, celeste, verde, azzurro, violetto, rosso, arancione, giallo, ocra]
+    colori = [magenta, rosso_scuro, fucsia, turchese, viola, celeste, verde, azzurro, violetto, rosso, arancione, ocra]
     colore_casuale = random.choice(colori)
     return colore_casuale
 
@@ -53,7 +52,7 @@ count__bg_ch = 0
 # ottiene la posizione della directory corrente
 dir_path = os.getcwd()
 bg_path=dir_path + "/background/"
-font_path= dir_path + "/lemonmilk.otf"
+font_path= dir_path + "/lemonmilk1.otf"
 val_path= dir_path+"/valori.txt"
 
 g_font=300  #Cambia per cambiare la grandezza del font
